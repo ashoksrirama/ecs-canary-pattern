@@ -1,0 +1,30 @@
+{
+    "containerDefinitions": [
+      {
+        "name": "app-sample",
+        "image": "REPOSITORY_URI:IMAGE_TAG",
+        "portMappings": [],
+        "essential": true,
+        "dockerLabels": {
+          "name": "app-sample"
+        },
+        "logConfiguration": {
+          "logDriver": "awslogs",
+          "options": {
+            "awslogs-group": "/ecs/app-sample",
+            "awslogs-region": "AWS_REGION",
+            "awslogs-stream-prefix": "app-sample"
+          }
+        }
+      }
+    ],
+    "taskRoleArn": "TASK_EXECUTION_ARN",
+    "executionRoleArn": "TASK_EXECUTION_ARN",
+    "family": "app-sample",
+    "networkMode": "awsvpc",
+    "requiresCompatibilities": [
+      "FARGATE"
+    ],
+    "cpu": "256",
+    "memory": "1024"
+  }
