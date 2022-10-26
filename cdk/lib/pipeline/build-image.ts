@@ -18,6 +18,7 @@ export interface EcsCanaryBuildImageProps {
     readonly codeBuildRole?: Role;
     readonly dockerHubUsername?: string;
     readonly dockerHubPassword?: string;
+    readonly customLambdaRole?: Role;
 }
 
 export class EcsCanaryBuildImage extends Construct {
@@ -89,6 +90,11 @@ export class EcsCanaryBuildImage extends Construct {
             description: 'CodeCommit repository clone URL',
             exportName: 'repoCloneUrlHttp',
             value: codeRepo.repositoryCloneUrlHttp
+        });
+        new CfnOutput(this, 'customLambdaRoleArn', {
+            description: 'Custom Lambda role arn',
+            exportName: 'customLambdaRoleArn',
+            value: props.customLambdaRole?.roleArn!
         });
         
     }

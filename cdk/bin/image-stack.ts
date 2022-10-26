@@ -28,7 +28,8 @@ export class CanaryContainerImageStack extends cdk.Stack {
             codeBuildRole: ecsCanaryRoles.codeBuildRole,
             ecsTaskRole: ecsCanaryRoles.ecsTaskRole,
             codeRepoName: process.env.CODE_REPO_NAME,
-            codeRepoDesc: codeRepoDesc.valueAsString
+            codeRepoDesc: codeRepoDesc.valueAsString,
+            customLambdaRole: ecsCanaryRoles.customLambdaServiceRole
         });
     }
 

@@ -15,22 +15,25 @@ A walkthrough for this example can be found at **TBD**
 
 ## Outcome
 
-ECS canary deployment CDK construct enabling teams to build and deploy pipeline for their workloads.
+ECS canary deployment CDK construct enabling teams to build and deploy CI/CD pipeline for their backend/queue processing workloads.
 
 ## What are we building?
 
-* CodePipeline will be used for executing Canary deployment using CodeCommit, CodeBuild and ECS Deployment provider
+* Two ECS Services will be deployed in ECS Cluster, one for handling the Canary traffic and the other for live
+* CodePipeline will be used for executing Canary deployment using CodeCommit, CodeBuild, ECS Deployment provider and a manual approval stage
 * The container images will be stored in the Elastic Container Registry
 * SQS Consumer sample application is deployed in AWS Fargate
+* After sucessful release, both services will run same version of the code
 
 ![canary-pipeline](./canary-pipeline.png)
 
 ## Why do I need this?
 
-* With a canary deployment, you provision a new set of containers on which the latest version of your application is deployed. CodeDeploy then re-routes load balancer traffic from an existing set of containers running the previous version of your application to the new set of containers running the latest version
+* With a canary deployment, you provision a new set of containers (Canary Service) on which the latest version of your application is deployed
 * canary deployments allow you to test the new application version before sending production traffic to it without disrupting the existing environment
 * Once the testing is completed, you can approve the manual stage to update the production tasks
-* You can incorporate the principle of infrastructure immutability by provisioning fresh instances when you need to make changes. In this way, you avoid configuration drift.
+* You can incorporate the principle of infrastructure immutability by provisioning fresh instances when you need to make changes. In this way, you avoid configuration drift
+* You can also configure CloudWatch Alarm to monitor the Canary release and automatically  rollback to live version in case of any errors
 
 ## What are the pre-requisites?
 

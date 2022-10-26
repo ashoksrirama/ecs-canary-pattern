@@ -5,9 +5,11 @@
 
 import 'source-map-support/register';
 import { Construct } from 'constructs';
-//import {StackProps, Stack, App} from 'aws-cdk-lib';
 import * as EcsCanary from '../lib/pipeline/build-pipeline';
 import * as EcsCluster from '../lib/ecs/cluster';
+import * as CanarySQS from '../lib/sqs/sqs-queue';
+import * as CanaryLambda from '../lib/custom_resource/lambda';
+
 import cdk = require("aws-cdk-lib")
 
 export class CanaryPipelineStack extends cdk.Stack {
@@ -15,20 +17,34 @@ export class CanaryPipelineStack extends cdk.Stack {
     constructor(scope: Construct, id: string, props?: cdk.StackProps) {
         super(scope, id, props);
 
+        //Build the dependent resources first
+
+        const canaryQueue = new CanarySQS.SQSQueue(this, 'EcsCanarySQS');
+
         // Build the stack
         const ecsCanaryCluster = new EcsCluster.EcsCanaryCluster(this, 'EcsCanaryCluster', {
             cidr: process.env.CIDR_RANGE
         });
 
-        new EcsCanary.EcsCanaryPipeline(this, 'EcsCanaryPipeline', {
+        const canaryPipeline = new EcsCanary.EcsCanaryPipeline(this, 'EcsCanaryPipeline', {
             apiName: process.env.API_NAME,
             cluster: ecsCanaryCluster.cluster,
             vpc: ecsCanaryCluster.vpc,
             ecrRepoName: process.env.ECR_REPO_NAME,
             codeBuildProjectName: process.env.CODE_BUILD_PROJECT_NAME,
             codeRepoName: process.env.CODE_REPO_NAME,
-            ecsTaskRoleArn: process.env.ECS_TASK_ROLE_ARN
+            ecsTaskRoleArn: process.env.ECS_TASK_ROLE_ARN,
+            queueName: canaryQueue.queue.queueName
         })
+
+        new CanaryLambda.Lambda(this, 'EcsCanaryLambda', {
+            cwalarm: canaryQueue.cwalarm,
+            codePipelineName: canaryPipeline.pipeline.pipelineName,
+            ecsCluster: ecsCanaryCluster.cluster.clusterName,
+            ecsSvcArn: canaryPipeline.ecsCanarySvc.ecsService.serviceArn,
+            ecsCanarySvcArn: canaryPipeline.ecsCanarySvc.ecsCanaryService.serviceArn,
+            customLambdaRoleArn: process.env.CUSTOM_LAMBDA_ROLE_ARN
+        });
     }
 }
 

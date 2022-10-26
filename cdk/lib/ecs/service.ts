@@ -19,6 +19,7 @@ export interface EcsCanaryServiceProps {
     readonly ecsTaskRole?: IRole;
     readonly canaryPercentage?: number;
     readonly taskCount?: number;
+    readonly queueName?: string;
 }
 
 export class EcsCanaryService extends Construct {
@@ -49,7 +50,8 @@ export class EcsCanaryService extends Construct {
                 streamPrefix: EcsCanaryService.PREFIX
             }),
             environment: {
-                "AWS_REGION": Stack.of(this).region
+                "AWS_REGION": Stack.of(this).region,
+                "QUEUE": props.queueName!
             }
         })
 

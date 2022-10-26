@@ -25,9 +25,13 @@ export interface EcsCanaryPipelineProps {
     readonly apiName?: string;
     readonly vpc?: IVpc;
     readonly cluster?: ICluster;
+    readonly queueName?: string;
 }
 
 export class EcsCanaryPipeline extends Construct {
+
+    public readonly pipeline: codePipeline.Pipeline;
+    public readonly ecsCanarySvc: EcsCanaryService;
 
     constructor(scope: Construct, id: string, props: EcsCanaryPipelineProps = {}) {
         super(scope, id);
@@ -102,18 +106,19 @@ export class EcsCanaryPipeline extends Construct {
         artifactsBucket.addToResourcePolicy(denyUnEncryptedObjectUploads);
         artifactsBucket.addToResourcePolicy(denyInsecureConnections);
 
-        const ecsCanaryService = new EcsCanaryService(this, 'service', {
+        this.ecsCanarySvc = new EcsCanaryService(this, 'service', {
             apiName: props.apiName,
             ecrRepository: ecrRepo,
             ecsTaskRole: ecsTaskRole,
             vpc: props.vpc,
             cluster: props.cluster,
             taskCount: 3,
-            canaryPercentage: 10
+            canaryPercentage: 10,
+            queueName: props.queueName
         });
 
         // Code Pipeline - CloudWatch trigger event is created by CDK
-        const pipeline = new codePipeline.Pipeline(this, 'ecsCanary', {
+        this.pipeline = new codePipeline.Pipeline(this, 'ecsCanary', {
             role: codePipelineRole,
             artifactBucket: artifactsBucket,
             stages: [
@@ -144,7 +149,7 @@ export class EcsCanaryPipeline extends Construct {
                     actions: [
                         new codePipelineActions.EcsDeployAction({
                             actionName: 'CanaryDeploy',
-                            service: ecsCanaryService.ecsCanaryService,
+                            service: this.ecsCanarySvc.ecsCanaryService,
                             deploymentTimeout: Duration.minutes(10),
                             input: buildArtifact
                         })
@@ -163,7 +168,7 @@ export class EcsCanaryPipeline extends Construct {
                     actions: [
                         new codePipelineActions.EcsDeployAction({
                             actionName: 'Deploy',
-                            service: ecsCanaryService.ecsService,
+                            service: this.ecsCanarySvc.ecsService,
                             deploymentTimeout: Duration.minutes(15),
                             input: buildArtifact
                         })
