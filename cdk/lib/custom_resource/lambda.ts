@@ -31,7 +31,7 @@ export class Lambda extends Construct {
                 {
                     exclude: ['**', '!lambda_function.py']
                 }),
-            runtime: lambda.Runtime.PYTHON_3_9,
+            runtime: lambda.Runtime.PYTHON_3_10,
             handler: 'lambda_function.handler',
             role: Role.fromRoleArn(this, 'customLambdaRole', props.customLambdaRoleArn!),
             description: 'Custom resource to monitor ECS Canary Deployment',

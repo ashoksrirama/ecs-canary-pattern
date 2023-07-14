@@ -22,6 +22,7 @@ export interface EcsCanaryPipelineProps {
     readonly ecrRepoName?: string;
     readonly codeBuildProjectName?: string;
     readonly ecsTaskRoleArn?: string;
+    readonly ecsTaskExecRoleArn?: string;
     readonly apiName?: string;
     readonly vpc?: IVpc;
     readonly cluster?: ICluster;
@@ -40,6 +41,7 @@ export class EcsCanaryPipeline extends Construct {
         const ecrRepo = ecr.Repository.fromRepositoryName(this, 'ecrRepo', props.ecrRepoName!);
         const codeBuildProject = codeBuild.Project.fromProjectName(this, 'codeBuild', props.codeBuildProjectName!);
         const ecsTaskRole = iam.Role.fromRoleArn(this, 'ecsTaskRole', props.ecsTaskRoleArn!);
+        const ecsTaskExecRole = iam.Role.fromRoleArn(this, 'ecsTaskExecRole', props.ecsTaskExecRoleArn!);
 
         const codePipelineRole = new iam.Role(this, 'codePipelineRole', {
             assumedBy: new ServicePrincipal('codepipeline.amazonaws.com')
@@ -110,6 +112,7 @@ export class EcsCanaryPipeline extends Construct {
             apiName: props.apiName,
             ecrRepository: ecrRepo,
             ecsTaskRole: ecsTaskRole,
+            ecsTaskExecutionRole: ecsTaskExecRole,
             vpc: props.vpc,
             cluster: props.cluster,
             taskCount: 3,

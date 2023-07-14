@@ -20,7 +20,7 @@ export class EcsCanaryCluster extends Construct {
         super(scope, id);
 
         this.vpc = new ec2.Vpc(this, 'ecsDemoVPC', {
-            cidr: props.cidr,
+            ipAddresses: ec2.IpAddresses.cidr(props.cidr!),
             natGateways: 1,
             vpcName: 'ecsDemoVPC'
         });

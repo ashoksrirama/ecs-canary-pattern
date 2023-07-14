@@ -19,7 +19,9 @@ export class CanaryPipelineStack extends cdk.Stack {
 
         //Build the dependent resources first
 
-        const canaryQueue = new CanarySQS.SQSQueue(this, 'EcsCanarySQS');
+        const canaryQueue = new CanarySQS.SQSQueue(this, 'EcsCanarySQS', {
+            ecsTaskRoleArn: process.env.ECS_TASK_ROLE_ARN
+        });
 
         // Build the stack
         const ecsCanaryCluster = new EcsCluster.EcsCanaryCluster(this, 'EcsCanaryCluster', {
@@ -34,6 +36,7 @@ export class CanaryPipelineStack extends cdk.Stack {
             codeBuildProjectName: process.env.CODE_BUILD_PROJECT_NAME,
             codeRepoName: process.env.CODE_REPO_NAME,
             ecsTaskRoleArn: process.env.ECS_TASK_ROLE_ARN,
+            ecsTaskExecRoleArn: process.env.ECS_TASK_EXEC_ROLE_ARN,
             queueName: canaryQueue.queue.queueName
         })
 

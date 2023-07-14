@@ -13,3 +13,6 @@ cdk.out
 # IDE
 .idea
 .DS_Store
+
+cdk/acat_report
+sample-app/acat_report

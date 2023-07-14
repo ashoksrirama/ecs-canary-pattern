@@ -17,6 +17,7 @@ export interface EcsCanaryServiceProps {
     readonly cluster?: ICluster;
     readonly ecrRepository?: IRepository;
     readonly ecsTaskRole?: IRole;
+    readonly ecsTaskExecutionRole?: IRole;
     readonly canaryPercentage?: number;
     readonly taskCount?: number;
     readonly queueName?: string;
@@ -38,9 +39,9 @@ export class EcsCanaryService extends Construct {
             cpu: 256,
             memoryLimitMiB: 1024,
             taskRole: props.ecsTaskRole,
-            executionRole: props.ecsTaskRole,
+            executionRole: props.ecsTaskExecutionRole,
         });
-        taskDefinition.addContainer(props.apiName! || 'app-sample', {
+        taskDefinition.addContainer(props.apiName! || 'sample-app', {
             image: ecs.ContainerImage.fromEcrRepository(props.ecrRepository!),
             logging: new ecs.AwsLogDriver({
                 logGroup: new log.LogGroup(this, 'apiLogGroup', {

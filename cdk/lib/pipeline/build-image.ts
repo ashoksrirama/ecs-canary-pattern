@@ -14,11 +14,10 @@ import codeBuild = require('aws-cdk-lib/aws-codebuild');
 export interface EcsCanaryBuildImageProps {
     readonly codeRepoName?: string;
     readonly codeRepoDesc?: string;
-    readonly ecsTaskRole?: Role;
+    readonly ecsTaskExecRole?: Role;
     readonly codeBuildRole?: Role;
     readonly dockerHubUsername?: string;
     readonly dockerHubPassword?: string;
-    readonly customLambdaRole?: Role;
 }
 
 export class EcsCanaryBuildImage extends Construct {
@@ -54,7 +53,7 @@ export class EcsCanaryBuildImage extends Construct {
                         type: BuildEnvironmentVariableType.PLAINTEXT
                     },
                     TASK_EXECUTION_ARN: {
-                        value: props.ecsTaskRole!.roleArn,
+                        value: props.ecsTaskExecRole!.roleArn,
                         type: BuildEnvironmentVariableType.PLAINTEXT
                     }
                 }
@@ -81,21 +80,10 @@ export class EcsCanaryBuildImage extends Construct {
             exportName: 'canaryCodeBuildProjectName',
             value: this.codeBuildProject.projectName
         });
-        new CfnOutput(this, 'ecsCanaryTaskRoleArn', {
-            description: 'ECS task role arn',
-            exportName: 'ecsCanaryTaskRoleArn',
-            value: props.ecsTaskRole?.roleArn!
-        });
         new CfnOutput(this, 'ecsCanaryCodeRepoCloneURL', {
             description: 'CodeCommit repository clone URL',
             exportName: 'repoCloneUrlHttp',
             value: codeRepo.repositoryCloneUrlHttp
         });
-        new CfnOutput(this, 'customLambdaRoleArn', {
-            description: 'Custom Lambda role arn',
-            exportName: 'customLambdaRoleArn',
-            value: props.customLambdaRole?.roleArn!
-        });
-        
     }
 }
